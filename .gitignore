@@ -1,0 +1,12 @@
+json/lookup-table.json
+data/*
+dn.txt
+names.txt
+*.zip
+*.log
+*.pw
+log/*
+logs/*
+*.html
+*.cp
+*desktop.ini

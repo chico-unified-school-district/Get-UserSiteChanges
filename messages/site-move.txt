@@ -1,0 +1,25 @@
+@impact=1 Person inconvenienced
+@category=Email::Other
+@Status=Assigned
+@Owner={12}
+@Site={6}
+@Room Number=Office
+Hello,
+
+The following user's work assignment has been updated:
+
+EmployeeID       : {0} 
+Name             : {1}
+Login name       : {2}
+Old Title        : {3}
+New Title        : {4}
+Old Site         : {5}
+New Site         : {6}
+Old File Server  : {7}
+New File Server  : {8}
+Current Location : {9}
+
+Please the update the account as needed.
+
+This ticket was initiated by {10} via the 'Get-UserSiteChanges' Automated Process
+running on {11} ☺
