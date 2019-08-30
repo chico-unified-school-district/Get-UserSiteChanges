@@ -109,9 +109,8 @@ foreach ( $item in $departmentNumberChanges ) {
  $messageBody = $messageTemplate -f $messageData
 
  $mailParams = @{
-  To         = '<servicedesk@kbox1.chicousd.org>'
-  # To         = ('<{0}>' -f $TargetAddress)
-  From       = $EmailCredential.Username # no-reply@chicousd.org
+  To         = ('<{0}>' -f $TargetAddress)
+  From       = $EmailCredential.Username
   Subject    = ( "User Site Change - {0} moved to {1}" -f $user.name, $siteDescr)
   Body       = $messageBody
   BodyAsHtml = $false
