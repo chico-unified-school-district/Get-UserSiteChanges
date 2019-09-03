@@ -18,6 +18,14 @@ Create a KACE helpdesk ticket via email when a site code is updated.
 
 [cmdletbinding()]
 param ( 
+ [Parameter(Position = 0, Mandatory = $True)]
+ [Alias('DC', 'Server')]
+ [ValidateScript( { Test-Connection -ComputerName $_ -Quiet -Count 1 })]
+ [string]$DomainController,
+ [Parameter(Position = 1, Mandatory = $True)]
+ [Alias('ADCred', 'ADCReds')]
+ [System.Management.Automation.PSCredential]$ADCredential,
+
  [Parameter(Mandatory = $True)]
  [Alias('Server')]
  [string]$SQLServer,
@@ -35,6 +43,12 @@ param (
  [SWITCH]$WhatIf
 )
 Clear-Host
+
+
+# AD Domain Controller Session
+$adCmdLets = 'Get-ADUser'
+$adSession = New-PSSession -ComputerName $DomainController -Credential $ADCredential
+Import-PSSession -Session $adSession -Module ActiveDirectory -CommandName $adCmdLets -AllowClobber
 
 $lookUpTable = Get-Content -Path .\json\lookup-table.json -Raw | ConvertFrom-Json
 
@@ -68,6 +82,7 @@ Where-Object { $_.SideIndicator -eq '=>' }
 # $departmentNumberChanges
 $messageTemplate = Get-Content -Path .\messages\site-move.txt -Raw
 
+# Check if the sitecode is a proper integer and catch any blank entries
 foreach ( $item in $departmentNumberChanges ) {
  try { if ([int]$item.departmentNumber -is 'Int') { } }
  catch { Write-Verbose ('(' + $item.departmentNumber + ') not an integer') ; continue }
@@ -125,4 +140,6 @@ foreach ( $item in $departmentNumberChanges ) {
 } # End Process Rows
  
 # Export current data as a reference for the next run
-# $currentData | Select-Object -Property employeeId, departmentNumber | Export-Csv -Path .\data\previous-data.csv -Force
+if (!$WhatIf) {
+ $currentData | Select-Object -Property employeeId, departmentNumber | Export-Csv -Path .\data\previous-data.csv -Force
+}
