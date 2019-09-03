@@ -19,13 +19,11 @@ Create a KACE helpdesk ticket via email when a site code is updated.
 [cmdletbinding()]
 param ( 
  [Parameter(Position = 0, Mandatory = $True)]
- [Alias('DC', 'Server')]
+ [Alias('DC')]
  [ValidateScript( { Test-Connection -ComputerName $_ -Quiet -Count 1 })]
  [string]$DomainController,
  [Parameter(Position = 1, Mandatory = $True)]
- [Alias('ADCred', 'ADCReds')]
  [System.Management.Automation.PSCredential]$ADCredential,
-
  [Parameter(Mandatory = $True)]
  [Alias('Server')]
  [string]$SQLServer,
@@ -90,11 +88,15 @@ foreach ( $item in $departmentNumberChanges ) {
  # Begin Process Rows
  $employeeId = $item.employeeId
 
- $userObj = Get-ADUser -LDAPFilter "(employeeId=$employeeId)" -Properties *
+ $userObj = Get-ADUser -LDAPFilter "(employeeId=$employeeId)" -Properties 'Title', 'departmentNumber', 'employeeID'
  if (!$userObj) { continue }
 
  $escapeData = $currentData.Where( { [int]$_.employeeID -eq [int]$employeeId } )
- $oldSite = $lookUpTable.Where( { [int]$_.departmentNumber -eq [int]$userObj.departmentNumber[0] })
+ 
+ if ($userObj.departmentNumber) {
+  $oldSite = $lookUpTable.Where( { [int]$_.departmentNumber -eq [int]$userObj.departmentNumber[0] })
+ }
+
  $newSite = $lookUpTable.Where( { [int]$_.departmentNumber -eq [int]$item.departmentNumber })
 
  if (($null -eq $escapeData.description) -or ($escapeData.description -match "^\s")) { 
