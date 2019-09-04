@@ -82,8 +82,13 @@ $messageTemplate = Get-Content -Path .\messages\site-move.txt -Raw
 
 # Check if the sitecode is a proper integer and catch any blank entries
 foreach ( $item in $departmentNumberChanges ) {
- try { if ([int]$item.departmentNumber -is 'Int') { } }
- catch { Write-Verbose ('(' + $item.departmentNumber + ') not an integer') ; continue }
+ write-Debug ( "========`nProcess {0}?" -f $item.employeeID )
+ try {
+  if ([int]$item.departmentNumber.trim() -is 'Int') {
+   $newSite = $lookUpTable.Where( { [int]$_.departmentNumber -eq [int]$item.departmentNumber } )
+  } 
+ }
+ catch { Write-Verbose ('Escape Department Number ({0}) for {1} is not an integer.' -f $item.departmentNumber, $item.employeeID) ; continue }
 
  # Begin Process Rows
  $employeeId = $item.employeeId
@@ -92,14 +97,17 @@ foreach ( $item in $departmentNumberChanges ) {
  if (!$userObj) { continue }
 
  $escapeData = $currentData.Where( { [int]$_.employeeID -eq [int]$employeeId } )
- 
- if ($userObj.departmentNumber) {
-  $oldSite = $lookUpTable.Where( { [int]$_.departmentNumber -eq [int]$userObj.departmentNumber[0] })
+
+ # Check if User Object Department Number is an integer
+ try {
+  if ( ([int]$userObj.departmentNumber.trim() -is 'Int') ) {
+   $oldSite = $lookUpTable.Where( { [int]$_.departmentNumber -eq [int]$userObj.departmentNumber[0] })
+  } 
  }
+ catch { Write-Verbose ('User Object Department Number ({0}) for {1} is not an integer.' -f $userObj.departmentNumber, $item.employeeID) }
 
- $newSite = $lookUpTable.Where( { [int]$_.departmentNumber -eq [int]$item.departmentNumber })
 
- if (($null -eq $escapeData.description) -or ($escapeData.description -match "^\s")) { 
+ if (($null -eq $escapeData.description) -or ($escapeData.description -match "^\s")) {
   Add-Log warning ('No Job Description for {0} {1}. Skipping.' -f $employeeId, $userObj.name) 
   continue
  }
