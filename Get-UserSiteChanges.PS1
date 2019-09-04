@@ -46,7 +46,7 @@ Clear-Host
 # AD Domain Controller Session
 $adCmdLets = 'Get-ADUser'
 $adSession = New-PSSession -ComputerName $DomainController -Credential $ADCredential
-Import-PSSession -Session $adSession -Module ActiveDirectory -CommandName $adCmdLets -AllowClobber
+Import-PSSession -Session $adSession -Module ActiveDirectory -CommandName $adCmdLets -AllowClobber | Out-Null
 
 $lookUpTable = Get-Content -Path .\json\lookup-table.json -Raw | ConvertFrom-Json
 
