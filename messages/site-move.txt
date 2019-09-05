@@ -1,6 +1,7 @@
 @impact=1 Person inconvenienced
 @category=Email::Other
 @Status=Assigned
+@Priority=Low
 @Owner={12}
 @Site={6}
 @Room Number=Office

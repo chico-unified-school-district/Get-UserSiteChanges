@@ -42,6 +42,7 @@ param (
 )
 Clear-Host
 
+Get-PSSession | Remove-PSSession -Confirm:$false
 
 # AD Domain Controller Session
 $adCmdLets = 'Get-ADUser'
@@ -136,7 +137,7 @@ foreach ( $item in $departmentNumberChanges ) {
  $mailParams = @{
   To         = ('<{0}>' -f $TargetAddress)
   From       = $EmailCredential.Username
-  Subject    = ( "User Site Change - {0} moved to {1}" -f $user.name, $siteDescr)
+  Subject    = ( "User Site Change - {0} moved to {1}" -f $userObj.name, $newSite.SiteDescr )
   Body       = $messageBody
   BodyAsHtml = $false
   SMTPServer = 'smtp.office365.com'
@@ -145,7 +146,7 @@ foreach ( $item in $departmentNumberChanges ) {
   Port       = 587
  }
  Add-Log email ("{0},Helpdesk Ticket Created" -f ( "User Site Change - {0} moved to {1}" -f $userObj.name, $newSite.SiteDescr)) -WhatIf:$WhatIf
- if ( $WhatIf ) { $to, $messageBody }
+ if ( $WhatIf ) { $mailParams, $messageBody }
  else { Send-MailMessage @mailParams }
 } # End Process Rows
  
@@ -153,3 +154,6 @@ foreach ( $item in $departmentNumberChanges ) {
 if (!$WhatIf) {
  $currentData | Select-Object -Property employeeId, departmentNumber | Export-Csv -Path .\data\previous-data.csv -Force
 }
+
+# Clean Up
+Get-PSSession | Remove-PSSession -Confirm:$false
